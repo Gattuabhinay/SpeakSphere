@@ -783,7 +783,7 @@ Thank you! 🙏
 
           {/* Bottom Bar */}
           <div className="border-t border-white/10 mt-20 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-white/20 text-[10px] text-center md:text-left">
-            <p>Developed and maintained by Computer Science Department</p>
+            <p>Developed and maintained by CSM Department</p>
             <p>© 2027 NNRG Fest. All rights reserved.</p>
             <a 
               href="https://wa.me/918309030400" 
