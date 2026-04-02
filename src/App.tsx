@@ -1034,9 +1034,17 @@ Thank you! 🙏`;
       </section>
 
       {/* Footer Section */}
-      <footer className="bg-black relative py-20 overflow-hidden">
+      <footer className="relative py-20 overflow-hidden bg-black">
+        {/* Background Image Layer */}
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center opacity-40"
+          style={{ backgroundImage: 'url("https://res.cloudinary.com/djz4ulfhh/image/upload/v1775127709/lander_page_x1734b.png")' }}
+        />
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/80 via-black/40 to-black/90" />
+
         {/* Watermark */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[2]">
           <span className="text-[clamp(60px,12vw,160px)] font-[900] text-white/[0.03] tracking-[8px] whitespace-nowrap uppercase">
             TECH FEST 2027
           </span>
