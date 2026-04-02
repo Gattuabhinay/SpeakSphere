@@ -93,6 +93,46 @@ export default function App() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [registrationCount, setRegistrationCount] = useState(0);
+  const [timeLeft, setTimeLeft] = useState({
+    years: 0,
+    months: 0,
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
+
+  const calculateTimeLeft = () => {
+    const targetDate = new Date('2027-02-26T09:30:00');
+    const now = new Date();
+    const difference = targetDate.getTime() - now.getTime();
+
+    if (difference <= 0) {
+      return { years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+
+    // Calculate years
+    let years = targetDate.getFullYear() - now.getFullYear();
+    let months = targetDate.getMonth() - now.getMonth();
+    let days = targetDate.getDate() - now.getDate();
+
+    if (days < 0) {
+      months -= 1;
+      const lastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+      days += lastMonth.getDate();
+    }
+
+    if (months < 0) {
+      years -= 1;
+      months += 12;
+    }
+
+    const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((difference / 1000 / 60) % 60);
+    const seconds = Math.floor((difference / 1000) % 60);
+
+    return { years, months, days, hours, minutes, seconds };
+  };
 
   const fetchCount = async () => {
     try {
@@ -107,8 +147,16 @@ export default function App() {
 
   useEffect(() => {
     fetchCount();
-    const interval = setInterval(fetchCount, 30000);
-    return () => clearInterval(interval);
+    const countInterval = setInterval(fetchCount, 30000);
+    
+    const timerInterval = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => {
+      clearInterval(countInterval);
+      clearInterval(timerInterval);
+    };
   }, []);
 
   const validators = {
@@ -365,6 +413,27 @@ Thank you! 🙏`;
             Public speaking and presentation competition
           </p>
 
+          {/* Countdown Timer */}
+          <div className="flex flex-wrap justify-center gap-3 mb-10">
+            {[
+              { label: 'YEARS', value: timeLeft.years },
+              { label: 'MONTHS', value: timeLeft.months },
+              { label: 'DAYS', value: timeLeft.days },
+              { label: 'HOURS', value: timeLeft.hours },
+              { label: 'MINS', value: timeLeft.minutes },
+              { label: 'SECS', value: timeLeft.seconds },
+            ].map((unit, i) => (
+              <div key={i} className="flex flex-col items-center min-w-[70px] md:min-w-[85px] p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <span className="text-2xl md:text-3xl font-black text-[#7C3AED] tabular-nums">
+                  {unit.value.toString().padStart(2, '0')}
+                </span>
+                <span className="text-[9px] font-bold tracking-[1px] text-white/40 mt-1 uppercase">
+                  {unit.label}
+                </span>
+              </div>
+            ))}
+          </div>
+
           <div className="flex flex-wrap justify-center items-center gap-4 mb-4 text-[13px] text-white/90">
             <div className="flex items-center gap-2 pr-4 border-r border-white/20">
               <Calendar className="w-4 h-4 text-[#7C3AED]" />
@@ -531,6 +600,45 @@ Thank you! 🙏`;
                   🏆 Final Round — Winners announced here!
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Event Timeline Section */}
+      <section className="bg-[#F5F5F5] py-20">
+        <div className="container mx-auto px-4">
+          <h2 className="text-[36px] font-[900] tracking-[3px] text-[#7C3AED] text-center mb-16 uppercase">
+            EVENT TIMELINE
+          </h2>
+          <div className="max-w-4xl mx-auto relative">
+            {/* Vertical Line */}
+            <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-[#7C3AED]/20 -translate-x-1/2" />
+
+            <div className="space-y-12">
+              {[
+                { date: "Feb 10, 2027", title: "Registrations Open", desc: "Online registration portal goes live for all colleges.", icon: <PlusCircle className="w-4 h-4" /> },
+                { date: "Feb 24, 2027", title: "Registration Deadline", desc: "Last day to secure your spot for SPEAKSPHERE.", icon: <Calendar className="w-4 h-4" /> },
+                { date: "Feb 25, 2027", title: "Slot Allotment", desc: "Participants receive their specific time slots and briefing.", icon: <Clock className="w-4 h-4" /> },
+                { date: "Feb 26, 2027", title: "The Main Event", desc: "Rounds 1, 2, and 3 take place throughout the day.", icon: <Speech className="w-4 h-4" /> },
+                { date: "Feb 26, 2027", title: "Winners Announced", desc: "Grand finale and prize distribution ceremony.", icon: <Trophy className="w-4 h-4" /> },
+              ].map((item, i) => (
+                <div key={i} className={`relative flex items-center ${i % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
+                  {/* Dot */}
+                  <div className="absolute left-4 md:left-1/2 w-8 h-8 bg-[#7C3AED] rounded-full border-4 border-[#F5F5F5] -translate-x-1/2 flex items-center justify-center text-white z-10 shadow-[0_0_15px_rgba(124,58,237,0.4)]">
+                    {item.icon}
+                  </div>
+                  
+                  {/* Content Card */}
+                  <div className={`ml-12 md:ml-0 md:w-1/2 ${i % 2 === 0 ? 'md:pr-16' : 'md:pl-16'}`}>
+                    <div className="bg-[#0D1B2A] p-6 rounded-2xl border border-white/5 shadow-xl hover:border-[#7C3AED]/40 transition-all group">
+                      <div className="text-[#7C3AED] font-bold text-xs tracking-[2px] mb-2 uppercase">{item.date}</div>
+                      <h3 className="text-white font-bold text-lg mb-2 group-hover:text-[#7C3AED] transition-colors">{item.title}</h3>
+                      <p className="text-[#8b949e] text-[13px] leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
