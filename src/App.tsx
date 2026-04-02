@@ -287,6 +287,11 @@ Thank you! 🙏`;
           90%       { transform: translateX(2px); }
         }
 
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.3); }
+        }
+
         .shake {
           animation: shake 0.5s ease-in-out;
         }
@@ -379,10 +384,13 @@ Thank you! 🙏`;
             </div>
           </div>
 
-          <div className="mb-12">
-            <p className="text-[#7C3AED] font-[900] text-[14px] tracking-[2px] uppercase">
-              🎯 {registrationCount} Students Registered So Far!
+          {/* Registration Counter */}
+          <div className="inline-flex items-center gap-3 bg-[#7C3AED]/12 border border-[#7C3AED]/40 rounded-full px-6 py-2.5 backdrop-blur-md shadow-[0_0_30px_rgba(124,58,237,0.2)] mb-5 hover:border-[#7C3AED]/80 hover:shadow-[0_0_40px_rgba(124,58,237,0.35)] transition-all duration-300 group">
+            <div className="w-2.5 h-2.5 bg-[#7C3AED] rounded-full shadow-[0_0_10px_rgba(124,58,237,0.8)] animate-[pulse_1.5s_infinite]" />
+            <p className="text-white text-[13px] font-bold tracking-[3px] uppercase">
+              LIVE  •  <span className="text-[#7C3AED] text-lg font-black">{registrationCount}</span> REGISTERED
             </p>
+            <Users className="w-4 h-4 text-[#7C3AED]/70" />
           </div>
 
           <div className="w-full max-w-[500px] mx-auto mb-8">
