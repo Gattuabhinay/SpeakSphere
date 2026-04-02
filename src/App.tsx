@@ -94,8 +94,6 @@ export default function App() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [registrationCount, setRegistrationCount] = useState(0);
   const [timeLeft, setTimeLeft] = useState({
-    years: 0,
-    months: 0,
     days: 0,
     hours: 0,
     minutes: 0,
@@ -108,30 +106,15 @@ export default function App() {
     const difference = targetDate.getTime() - now.getTime();
 
     if (difference <= 0) {
-      return { years: 0, months: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
+      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
     }
 
-    // Calculate years
-    let years = targetDate.getFullYear() - now.getFullYear();
-    let months = targetDate.getMonth() - now.getMonth();
-    let days = targetDate.getDate() - now.getDate();
-
-    if (days < 0) {
-      months -= 1;
-      const lastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-      days += lastMonth.getDate();
-    }
-
-    if (months < 0) {
-      years -= 1;
-      months += 12;
-    }
-
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
     const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
     const minutes = Math.floor((difference / 1000 / 60) % 60);
     const seconds = Math.floor((difference / 1000) % 60);
 
-    return { years, months, days, hours, minutes, seconds };
+    return { days, hours, minutes, seconds };
   };
 
   const fetchCount = async () => {
@@ -414,23 +397,29 @@ Thank you! 🙏`;
           </p>
 
           {/* Countdown Timer */}
-          <div className="flex flex-wrap justify-center gap-3 mb-10">
+          <div className="flex items-center justify-center gap-2 md:gap-4 mb-10">
             {[
-              { label: 'YEARS', value: timeLeft.years },
-              { label: 'MONTHS', value: timeLeft.months },
               { label: 'DAYS', value: timeLeft.days },
               { label: 'HOURS', value: timeLeft.hours },
               { label: 'MINS', value: timeLeft.minutes },
               { label: 'SECS', value: timeLeft.seconds },
-            ].map((unit, i) => (
-              <div key={i} className="flex flex-col items-center min-w-[70px] md:min-w-[85px] p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <span className="text-2xl md:text-3xl font-black text-[#7C3AED] tabular-nums">
-                  {unit.value.toString().padStart(2, '0')}
-                </span>
-                <span className="text-[9px] font-bold tracking-[1px] text-white/40 mt-1 uppercase">
-                  {unit.label}
-                </span>
-              </div>
+            ].map((unit, i, arr) => (
+              <React.Fragment key={i}>
+                <div className="flex flex-col items-center justify-center w-[75px] h-[95px] md:w-[110px] md:h-[130px] rounded-2xl bg-[#111111] border-[#7C3AED]/30 border shadow-[0_0_20px_rgba(124,58,237,0.1)]">
+                  <span className="text-3xl md:text-5xl font-black text-[#7C3AED] tabular-nums leading-none">
+                    {unit.value.toString().padStart(2, '0')}
+                  </span>
+                  <span className="text-[10px] md:text-[12px] font-bold tracking-[2px] text-white/30 mt-3 uppercase">
+                    {unit.label}
+                  </span>
+                </div>
+                {i < arr.length - 1 && (
+                  <div className="flex flex-col gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#7C3AED]/40" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#7C3AED]/40" />
+                  </div>
+                )}
+              </React.Fragment>
             ))}
           </div>
 
