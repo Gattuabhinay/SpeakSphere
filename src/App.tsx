@@ -648,45 +648,6 @@ Thank you! 🙏`;
         </div>
       </section>
 
-      {/* Event Timeline Section */}
-      <section className="bg-[#F5F5F5] py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-[36px] font-[900] tracking-[3px] text-[#7C3AED] text-center mb-16 uppercase">
-            EVENT TIMELINE
-          </h2>
-          <div className="max-w-4xl mx-auto relative">
-            {/* Vertical Line */}
-            <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-[#7C3AED]/20 -translate-x-1/2" />
-
-            <div className="space-y-12">
-              {[
-                { date: "Feb 10, 2027", title: "Registrations Open", desc: "Online registration portal goes live for all colleges.", icon: <PlusCircle className="w-4 h-4" /> },
-                { date: "Feb 24, 2027", title: "Registration Deadline", desc: "Last day to secure your spot for SPEAKSPHERE.", icon: <Calendar className="w-4 h-4" /> },
-                { date: "Feb 25, 2027", title: "Slot Allotment", desc: "Participants receive their specific time slots and briefing.", icon: <Clock className="w-4 h-4" /> },
-                { date: "Feb 26, 2027", title: "The Main Event", desc: "Rounds 1, 2, and 3 take place throughout the day.", icon: <Speech className="w-4 h-4" /> },
-                { date: "Feb 26, 2027", title: "Winners Announced", desc: "Grand finale and prize distribution ceremony.", icon: <Trophy className="w-4 h-4" /> },
-              ].map((item, i) => (
-                <div key={i} className={`relative flex items-center ${i % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
-                  {/* Dot */}
-                  <div className="absolute left-4 md:left-1/2 w-8 h-8 bg-[#7C3AED] rounded-full border-4 border-[#F5F5F5] -translate-x-1/2 flex items-center justify-center text-white z-10 shadow-[0_0_15px_rgba(124,58,237,0.4)]">
-                    {item.icon}
-                  </div>
-                  
-                  {/* Content Card */}
-                  <div className={`ml-12 md:ml-0 md:w-1/2 ${i % 2 === 0 ? 'md:pr-16' : 'md:pl-16'}`}>
-                    <div className="bg-[#0D1B2A] p-6 rounded-2xl border border-white/5 shadow-xl hover:border-[#7C3AED]/40 transition-all group">
-                      <div className="text-[#7C3AED] font-bold text-xs tracking-[2px] mb-2 uppercase">{item.date}</div>
-                      <h3 className="text-white font-bold text-lg mb-2 group-hover:text-[#7C3AED] transition-colors">{item.title}</h3>
-                      <p className="text-[#8b949e] text-[13px] leading-relaxed">{item.desc}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Event Rules Section */}
       <section className="bg-[#F5F5F5] py-20">
         <div className="container mx-auto px-4">
