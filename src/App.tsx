@@ -25,7 +25,9 @@ import {
   Mic,
   Speech,
   ShieldCheck,
-  Star
+  Star,
+  FileText,
+  Lightbulb
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -593,6 +595,58 @@ Thank you! 🙏`;
           </div>
         </div>
       </section>
+ 
+      {/* Tips & Guide Section */}
+      <section className="bg-[#F5F5F5] py-20">
+        <div className="container mx-auto px-4">
+          <h2 className="text-[36px] font-[900] tracking-[3px] text-[#7C3AED] text-center mb-16 uppercase">
+            TIPS & GUIDE
+          </h2>
+          <div className="bg-[#0D1B2A] rounded-2xl p-9 border border-white/5 max-w-[800px] mx-auto text-center">
+            {/* Info Banner */}
+            <div className="bg-[#7C3AED]/10 border-l-[3px] border-[#7C3AED] p-4 mb-10 flex items-center gap-3 text-left">
+              <Lightbulb className="w-5 h-5 text-[#7C3AED]" />
+              <p className="text-[#7C3AED] text-xs font-bold uppercase tracking-wide">
+                📚 Read the official tips guide to prepare better and ace Speak Sphere 2027!
+              </p>
+            </div>
+
+            {/* PDF Card centered */}
+            <div className="mb-8">
+              <div className="w-20 h-20 bg-[#7C3AED]/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-[#7C3AED]/20">
+                <FileText className="w-10 h-10 text-[#7C3AED]" />
+              </div>
+              <h3 className="text-white font-black text-2xl mb-2 uppercase tracking-tight">Speak Sphere — Tips & Guide</h3>
+              <p className="text-[#6e7681] text-sm tracking-[1px] uppercase font-bold">Speech Tips | Group Discussion | Debate Strategies</p>
+            </div>
+
+            {/* Two Buttons side by side */}
+            <div className="flex flex-wrap justify-center gap-4 mb-8">
+              <a 
+                href="https://drive.google.com/file/d/1rRVp-oEiiqKpMp-Pv9-uM9S4cwGivPHZ/view?usp=drive_link"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-8 py-4 bg-[#7C3AED] hover:bg-[#6D28D9] text-white rounded-xl font-bold text-sm transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(124,58,237,0.3)]"
+              >
+                👁 View PDF
+              </a>
+              <a 
+                href="https://drive.google.com/uc?export=download&id=1rRVp-oEiiqKpMp-Pv9-uM9S4cwGivPHZ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl font-bold text-sm transition-all flex items-center gap-2"
+              >
+                ⬇ Download PDF
+              </a>
+            </div>
+
+            {/* Note below buttons */}
+            <p className="text-[#6e7681] text-xs italic">
+              💡 Tip: These tips are for preparation only. Read all 3 rounds carefully before participating.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* Event Timeline Section */}
       <section className="bg-[#F5F5F5] py-20">
@@ -753,6 +807,65 @@ Thank you! 🙏`;
 
             <div className="bg-[#7C3AED]/5 border-l-2 border-[#7C3AED] p-3 text-[#7C3AED] text-sm">
               📋 Note: NNRG TechFest - SPEAKSPHERE
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="max-w-[700px] mx-auto my-12 flex items-center gap-4">
+            <div className="flex-1 h-[1px] bg-white/10" />
+            <div className="bg-[#1A1A2E] border border-[#7C3AED]/30 px-4 py-1.5 rounded-full">
+              <span className="text-[#7C3AED]/80 text-[9px] font-bold tracking-[3px] uppercase">
+                OR | ALTERNATIVE
+              </span>
+            </div>
+            <div className="flex-1 h-[1px] bg-white/10" />
+          </div>
+
+          {/* Alternative Payment Card */}
+          <div className="bg-[#0D1B2A] rounded-2xl p-8 border border-white/5 max-w-[700px] mx-auto relative">
+            <div className="absolute top-6 right-6 border border-[#7C3AED]/50 px-2 py-1 rounded text-[#7C3AED] text-[9px] font-bold tracking-[2px] uppercase">
+              ALTERNATIVE
+            </div>
+
+            <div className="bg-[#7C3AED]/5 border-l-[3px] border-[#7C3AED]/50 p-3.5 mb-8 flex items-center gap-3">
+              <p className="text-[#7C3AED]/80 text-[11px] font-medium leading-relaxed">
+                ⚡ Use this UPI ID if the primary payment option has reached its daily transaction limit.
+              </p>
+            </div>
+
+            <div className="text-center mb-6">
+              <p className="text-[#6e7681] text-[9px] tracking-[3px] uppercase mb-6">SCAN QR CODE TO PAY</p>
+              <div className="inline-block bg-white p-2 rounded-lg mb-8">
+                <img 
+                  src="https://quickchart.io/qr?text=upi://pay?pa=6301523538-id6e@axl%26pn=Nithish%26am=100%26cu=INR%26tn=NNRG_TechFest_SpeakSphere&size=300" 
+                  alt="Alternative Payment QR Code"
+                  className="w-[260px] h-[260px]"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="space-y-1">
+                <p className="text-[#6e7681] text-[10px] uppercase tracking-wider">UPI ID</p>
+                <p className="text-[#7C3AED] font-mono break-all">6301523538-id6e@axl</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[#6e7681] text-[10px] uppercase tracking-wider">PHONE</p>
+                <p className="text-[#7C3AED] font-mono">6301523538</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[#6e7681] text-[10px] uppercase tracking-wider">NAME</p>
+                <p className="text-white font-bold">NITHISH</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[#6e7681] text-[10px] uppercase tracking-wider">AMOUNT</p>
+                <p className="text-[#22C55E] font-bold text-lg">₹100</p>
+              </div>
+            </div>
+
+            <div className="bg-[#7C3AED]/3 border-l-2 border-[#7C3AED]/50 p-3 text-[#7C3AED]/70 text-sm">
+              📋 Note: NNRG TechFest - SpeakSphere | Solo Participation
             </div>
           </div>
         </div>
