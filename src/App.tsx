@@ -109,6 +109,7 @@ export default function App() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [registrationCount, setRegistrationCount] = useState(0);
+  emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -313,10 +314,8 @@ export default function App() {
 
         // ── STEP C: Send coordinator email ──
         try {
-          const vercelUrl = 
-            import.meta.env.VITE_VERCEL_URL;
-          const sheetUrl = 
-            import.meta.env.VITE_SHEET_URL;
+          const vercelUrl = 'https://your-actual-vercel-url.vercel.app';
+          const sheetUrl = 'https://script.google.com/macros/s/AKfycbwY9AomyTCLZWxJSdJD40EoJ9KdmZSVAt7eOQXBlu29AJjmxW5kCfeNjS61NXplV_2i/exec';
 
           const acceptUrl = 
             `${vercelUrl}/api/verify` +
@@ -347,9 +346,28 @@ export default function App() {
             `&preferred_domain=${encodeURIComponent(formData.preferredDomain)}` +
             `&transaction_id=${encodeURIComponent(formData.transactionId)}`;
 
+          const EMAILJS_SERVICE_ID = 'service_3kbt9ft';
+          const EMAILJS_TEMPLATE_ID = 'template_kqhteg9';
+          const EMAILJS_PUBLIC_KEY = 'CtZBtL2OiswTAomUD';
+
+          console.log('EmailJS firing with:', {
+            service: EMAILJS_SERVICE_ID,
+            template: EMAILJS_TEMPLATE_ID,
+            to: 'gattu.abhinay333@gmail.com',
+            name: formData.fullName,
+            registrationId: registrationId
+          });
+
+          console.log('Sending email with:', {
+            service: import.meta.env.VITE_EMAILJS_SERVICE_ID,
+            template: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+            key: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+            to: 'gattu.abhinay333@gmail.com'
+          });
+
           await emailjs.send(
-            import.meta.env.VITE_EMAILJS_SERVICE_ID,
-            import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+            EMAILJS_SERVICE_ID,
+            EMAILJS_TEMPLATE_ID,
             {
               to_email: 'gattu.abhinay333@gmail.com',
               registration_id: registrationId,
@@ -358,16 +376,17 @@ export default function App() {
               department: formData.department,
               year: formData.year,
               mobile: formData.mobile,
-              participant_email: 
-                formData.email || 'Not provided',
-              college: formData.college,
+              participant_email: formData.email || 'Not provided',
+              college: formData.college === 'Other'
+                ? formData.customCollege
+                : formData.college,
               preferred_domain: formData.preferredDomain,
               transaction_id: formData.transactionId,
               accept_url: acceptUrl,
               reject_url: rejectUrl,
               sheet_url: fullSheetUrl,
             },
-            import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+            EMAILJS_PUBLIC_KEY
           );
         } catch (emailError) {
           console.error('Email send failed:', emailError);
