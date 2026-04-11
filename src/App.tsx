@@ -1,3 +1,16 @@
+/*
+VERCEL ENVIRONMENT VARIABLES - Add these in
+Vercel Dashboard → Settings → Environment Variables:
+
+VITE_EMAILJS_SERVICE_ID=service_3kbt9ft
+VITE_EMAILJS_TEMPLATE_ID=template_kqhteg9
+VITE_EMAILJS_PUBLIC_KEY=CtZBtL2OiswTAomUD
+VITE_VERCEL_URL=https://your-speaksphere-url.vercel.app
+VITE_SHEET_URL=https://script.google.com/macros/s/AKfycbwY9AomyTCLZWxJSdJD40EoJ9KdmZSVAt7eOQXBlu29AJjmxW5kCfeNjS61NXplV_2i/exec
+SUPABASE_URL=https://ximypoaoorqtjreefqkq.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+*/
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -30,6 +43,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import emailjs from '@emailjs/browser';
 
 // --- Types ---
 interface FormData {
@@ -253,6 +267,26 @@ export default function App() {
       return; // STOP — do not open WhatsApp
     }
 
+    // ── STEP A: Generate Registration ID ──
+    const registrationId = `SS2027-${Math.floor(
+      10000000 + Math.random() * 90000000
+    )}`;
+
+    // ── STEP B: Check for duplicate Transaction ID ──
+    const { data: existingTxn } = await supabase
+      .from('register')
+      .select('id')
+      .eq('transaction_id', formData.transactionId)
+      .maybeSingle();
+
+    if (existingTxn) {
+      setErrors(prev => ({
+        ...prev,
+        transactionId: 'This Transaction ID has already been used. Please check your payment details. If you believe this is a mistake, contact the coordinator at 8309030400.'
+      }));
+      return;
+    }
+
     // SAVE TO SUPABASE
     try {
       const { error } = await supabase
@@ -265,7 +299,10 @@ export default function App() {
           year: formData.year,
           mobile_no: formData.mobile,
           e_mail: formData.email || null,
-          transaction_id: formData.transactionId
+          transaction_id: formData.transactionId,
+          registration_id: registrationId,
+          status: 'pending',
+          preferred_domain: formData.preferredDomain,
         }]);
 
       if (error) {
@@ -273,6 +310,70 @@ export default function App() {
       } else {
         console.log('Saved successfully!');
         fetchCount(); // refresh counter
+
+        // ── STEP C: Send coordinator email ──
+        try {
+          const vercelUrl = 
+            import.meta.env.VITE_VERCEL_URL;
+          const sheetUrl = 
+            import.meta.env.VITE_SHEET_URL;
+
+          const acceptUrl = 
+            `${vercelUrl}/api/verify` +
+            `?id=${registrationId}` +
+            `&action=accept` +
+            `&mobile=${encodeURIComponent(formData.mobile)}` +
+            `&name=${encodeURIComponent(formData.fullName)}` +
+            `&email=${encodeURIComponent(formData.email || '')}`;
+
+          const rejectUrl =
+            `${vercelUrl}/api/verify` +
+            `?id=${registrationId}` +
+            `&action=reject` +
+            `&mobile=${encodeURIComponent(formData.mobile)}` +
+            `&name=${encodeURIComponent(formData.fullName)}` +
+            `&email=${encodeURIComponent(formData.email || '')}`;
+
+          const fullSheetUrl =
+            `${sheetUrl}` +
+            `?registration_id=${encodeURIComponent(registrationId)}` +
+            `&full_name=${encodeURIComponent(formData.fullName)}` +
+            `&roll_number=${encodeURIComponent(formData.rollNumber)}` +
+            `&department=${encodeURIComponent(formData.department)}` +
+            `&year=${encodeURIComponent(formData.year)}` +
+            `&mobile=${encodeURIComponent(formData.mobile)}` +
+            `&participant_email=${encodeURIComponent(formData.email || 'Not provided')}` +
+            `&college=${encodeURIComponent(formData.college)}` +
+            `&preferred_domain=${encodeURIComponent(formData.preferredDomain)}` +
+            `&transaction_id=${encodeURIComponent(formData.transactionId)}`;
+
+          await emailjs.send(
+            import.meta.env.VITE_EMAILJS_SERVICE_ID,
+            import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+            {
+              to_email: 'gattu.abhinay333@gmail.com',
+              registration_id: registrationId,
+              full_name: formData.fullName,
+              roll_number: formData.rollNumber,
+              department: formData.department,
+              year: formData.year,
+              mobile: formData.mobile,
+              participant_email: 
+                formData.email || 'Not provided',
+              college: formData.college,
+              preferred_domain: formData.preferredDomain,
+              transaction_id: formData.transactionId,
+              accept_url: acceptUrl,
+              reject_url: rejectUrl,
+              sheet_url: fullSheetUrl,
+            },
+            import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+          );
+        } catch (emailError) {
+          console.error('Email send failed:', emailError);
+          // Do not block the user if email fails
+          // Registration is already saved in Supabase
+        }
       }
     } catch (err) {
       console.error('Failed to save to Supabase:', err);
@@ -280,7 +381,9 @@ export default function App() {
 
     // ALL VALID — build WhatsApp message
     const message =
-`Hello! I have registered for *SPEAKSPHERE* event at NNRG Tech Fest 2027.
+`*Registration ID: ${registrationId}*
+━━━━━━━━━━━━━━━━━━━━━━━━
+Hello! I have registered for *SPEAKSPHERE* event at NNRG Tech Fest 2027.
 
 *Registration Details:*
 ━━━━━━━━━━━━━━━━
