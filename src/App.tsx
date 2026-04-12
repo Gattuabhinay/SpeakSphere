@@ -43,7 +43,6 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import emailjs from '@emailjs/browser';
 
 // --- Types ---
 interface FormData {
@@ -109,7 +108,6 @@ export default function App() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [registrationCount, setRegistrationCount] = useState(0);
-  emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -312,12 +310,12 @@ export default function App() {
         console.log('Saved successfully!');
         fetchCount(); // refresh counter
 
-        // ── STEP C: Send coordinator email ──
+        // ── STEP C: Send coordinator email via Resend ──
         try {
-          const vercelUrl = 'https://your-actual-vercel-url.vercel.app';
-          const sheetUrl = 'https://script.google.com/macros/s/AKfycbwY9AomyTCLZWxJSdJD40EoJ9KdmZSVAt7eOQXBlu29AJjmxW5kCfeNjS61NXplV_2i/exec';
+          const vercelUrl = 'https://speak-sphere-ai-ml.vercel.app';
+          const sheetUrl = 'https://script.google.com/macros/s/AKfycbzJSQgmDpZ8VVgPu8R-n4HiszkMqvhsFJj7Et7ARbWcmRnXsWYDCIs8eMkBQwXFSRNW/exec';
 
-          const acceptUrl = 
+          const acceptUrl =
             `${vercelUrl}/api/verify` +
             `?id=${registrationId}` +
             `&action=accept` +
@@ -342,34 +340,14 @@ export default function App() {
             `&year=${encodeURIComponent(formData.year)}` +
             `&mobile=${encodeURIComponent(formData.mobile)}` +
             `&participant_email=${encodeURIComponent(formData.email || 'Not provided')}` +
-            `&college=${encodeURIComponent(formData.college)}` +
+            `&college=${encodeURIComponent(collegeName)}` +
             `&preferred_domain=${encodeURIComponent(formData.preferredDomain)}` +
             `&transaction_id=${encodeURIComponent(formData.transactionId)}`;
 
-          const EMAILJS_SERVICE_ID = 'service_3kbt9ft';
-          const EMAILJS_TEMPLATE_ID = 'template_kqhteg9';
-          const EMAILJS_PUBLIC_KEY = 'CtZBtL2OiswTAomUD';
-
-          console.log('EmailJS firing with:', {
-            service: EMAILJS_SERVICE_ID,
-            template: EMAILJS_TEMPLATE_ID,
-            to: 'gattu.abhinay333@gmail.com',
-            name: formData.fullName,
-            registrationId: registrationId
-          });
-
-          console.log('Sending email with:', {
-            service: import.meta.env.VITE_EMAILJS_SERVICE_ID,
-            template: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-            key: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-            to: 'gattu.abhinay333@gmail.com'
-          });
-
-          await emailjs.send(
-            EMAILJS_SERVICE_ID,
-            EMAILJS_TEMPLATE_ID,
-            {
-              to_email: 'gattu.abhinay333@gmail.com',
+          const emailResponse = await fetch('/api/sendEmail', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
               registration_id: registrationId,
               full_name: formData.fullName,
               roll_number: formData.rollNumber,
@@ -377,21 +355,21 @@ export default function App() {
               year: formData.year,
               mobile: formData.mobile,
               participant_email: formData.email || 'Not provided',
-              college: formData.college === 'Other'
-                ? formData.customCollege
-                : formData.college,
+              college: collegeName,
               preferred_domain: formData.preferredDomain,
               transaction_id: formData.transactionId,
               accept_url: acceptUrl,
               reject_url: rejectUrl,
               sheet_url: fullSheetUrl,
-            },
-            EMAILJS_PUBLIC_KEY
-          );
+            }),
+          });
+
+          const emailResult = await emailResponse.json();
+          console.log('Email result:', emailResult);
+
         } catch (emailError) {
           console.error('Email send failed:', emailError);
-          // Do not block the user if email fails
-          // Registration is already saved in Supabase
+          // Do not block user — registration already saved in Supabase
         }
       }
     } catch (err) {
