@@ -1,14 +1,5 @@
 /*
-VERCEL ENVIRONMENT VARIABLES - Add these in
-Vercel Dashboard → Settings → Environment Variables:
-
-VITE_EMAILJS_SERVICE_ID=service_3kbt9ft
-VITE_EMAILJS_TEMPLATE_ID=template_kqhteg9
-VITE_EMAILJS_PUBLIC_KEY=CtZBtL2OiswTAomUD
-VITE_VERCEL_URL=https://your-speaksphere-url.vercel.app
-VITE_SHEET_URL=https://script.google.com/macros/s/AKfycbwY9AomyTCLZWxJSdJD40EoJ9KdmZSVAt7eOQXBlu29AJjmxW5kCfeNjS61NXplV_2i/exec
-SUPABASE_URL=https://ximypoaoorqtjreefqkq.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+NNRG TechFest 2027 - SPEAKSPHERE
 */
 
 /**
@@ -43,6 +34,7 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import ChatBot from './components/ChatBot';
 
 // --- Types ---
 interface FormData {
@@ -310,67 +302,6 @@ export default function App() {
         console.log('Saved successfully!');
         fetchCount(); // refresh counter
 
-        // ── STEP C: Send coordinator email via Resend ──
-        try {
-          const vercelUrl = 'https://speak-sphere-ai-ml.vercel.app';
-          const sheetUrl = 'https://script.google.com/macros/s/AKfycbzJSQgmDpZ8VVgPu8R-n4HiszkMqvhsFJj7Et7ARbWcmRnXsWYDCIs8eMkBQwXFSRNW/exec';
-
-          const acceptUrl =
-            `${vercelUrl}/api/verify` +
-            `?id=${registrationId}` +
-            `&action=accept` +
-            `&mobile=${encodeURIComponent(formData.mobile)}` +
-            `&name=${encodeURIComponent(formData.fullName)}` +
-            `&email=${encodeURIComponent(formData.email || '')}`;
-
-          const rejectUrl =
-            `${vercelUrl}/api/verify` +
-            `?id=${registrationId}` +
-            `&action=reject` +
-            `&mobile=${encodeURIComponent(formData.mobile)}` +
-            `&name=${encodeURIComponent(formData.fullName)}` +
-            `&email=${encodeURIComponent(formData.email || '')}`;
-
-          const fullSheetUrl =
-            `${sheetUrl}` +
-            `?registration_id=${encodeURIComponent(registrationId)}` +
-            `&full_name=${encodeURIComponent(formData.fullName)}` +
-            `&roll_number=${encodeURIComponent(formData.rollNumber)}` +
-            `&department=${encodeURIComponent(formData.department)}` +
-            `&year=${encodeURIComponent(formData.year)}` +
-            `&mobile=${encodeURIComponent(formData.mobile)}` +
-            `&participant_email=${encodeURIComponent(formData.email || 'Not provided')}` +
-            `&college=${encodeURIComponent(collegeName)}` +
-            `&preferred_domain=${encodeURIComponent(formData.preferredDomain)}` +
-            `&transaction_id=${encodeURIComponent(formData.transactionId)}`;
-
-          const emailResponse = await fetch('/api/sendEmail', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              registration_id: registrationId,
-              full_name: formData.fullName,
-              roll_number: formData.rollNumber,
-              department: formData.department,
-              year: formData.year,
-              mobile: formData.mobile,
-              participant_email: formData.email || 'Not provided',
-              college: collegeName,
-              preferred_domain: formData.preferredDomain,
-              transaction_id: formData.transactionId,
-              accept_url: acceptUrl,
-              reject_url: rejectUrl,
-              sheet_url: fullSheetUrl,
-            }),
-          });
-
-          const emailResult = await emailResponse.json();
-          console.log('Email result:', emailResult);
-
-        } catch (emailError) {
-          console.error('Email send failed:', emailError);
-          // Do not block user — registration already saved in Supabase
-        }
       }
     } catch (err) {
       console.error('Failed to save to Supabase:', err);
@@ -1282,6 +1213,7 @@ Thank you! 🙏`;
           </div>
         </div>
       </footer>
+      <ChatBot />
     </div>
   );
 }
