@@ -9,6 +9,7 @@ NNRG TechFest 2027 - SPEAKSPHERE
 
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { Routes, Route, useParams, useSearchParams, Link } from 'react-router-dom';
 import { 
   Calendar, 
   Clock, 
@@ -84,7 +85,98 @@ const supabase = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrbHpxd2NnYm9vbHppc3FuZ2VpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNDcxNzEsImV4cCI6MjA4MzcyMzE3MX0.TEqgRDBCHGJJJsOoLdUfXlKXmnR6m_J5woumAjOtw9E'
 );
 
-export default function App() {
+function ReviewPage() {
+  const { token } = useParams();
+  const [searchParams] = useSearchParams();
+  const action = searchParams.get('action');
+  const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'idle'>('idle');
+  const [message, setMessage] = useState('');
+  const [disabled, setDisabled] = useState(false);
+
+  useEffect(() => {
+    if (action && (action === 'accept' || action === 'reject')) {
+      handleAction(action);
+    }
+  }, [action]);
+
+  const handleAction = async (decision: string) => {
+    setStatus('loading');
+    setDisabled(true);
+    try {
+      const res = await fetch('/api/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, action: decision })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('success');
+        setMessage(decision === 'accept' ? 'Registration Accepted' : 'Registration Rejected');
+      } else {
+        setStatus('error');
+        setMessage('Error updating registration');
+      }
+    } catch (err) {
+      setStatus('error');
+      setMessage('Failed to connect to server');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0D1117] flex items-center justify-center p-4">
+      <div className="bg-[#161B22] border border-white/10 rounded-2xl p-8 max-w-md w-full text-center">
+        <h2 className="text-2xl font-black text-white mb-6 uppercase tracking-wider">Registration Review</h2>
+        
+        {status === 'success' ? (
+          <div className="bg-green-500/10 border border-green-500/50 p-4 rounded-xl mb-6">
+            <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
+            <p className="text-green-500 font-bold text-lg">{message}</p>
+          </div>
+        ) : status === 'error' ? (
+          <div className="bg-red-500/10 border border-red-500/50 p-4 rounded-xl mb-6">
+            <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-3" />
+            <p className="text-red-500 font-bold">{message}</p>
+          </div>
+        ) : status === 'loading' ? (
+          <div className="p-8">
+            <div className="w-12 h-12 border-4 border-[#7C3AED] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-white/60">Processing decision...</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <p className="text-white/70 mb-8">Review the participant's details and take an action.</p>
+            <button 
+              onClick={() => handleAction('accept')}
+              disabled={disabled}
+              className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg transition-all"
+            >
+              Accept Registration
+            </button>
+            <button 
+              onClick={() => handleAction('reject')}
+              disabled={disabled}
+              className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl shadow-lg transition-all"
+            >
+              Reject Registration
+            </button>
+            <button 
+              disabled={disabled}
+              className="w-full bg-white/5 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl border border-white/10 transition-all"
+            >
+              Mark as Pending
+            </button>
+          </div>
+        )}
+
+        <Link to="/" className="inline-block mt-8 text-[#7C3AED] hover:underline text-sm font-medium">
+          Return to SpeakSphere Home
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function Home() {
   const [formData, setFormData] = useState<FormData>({
     college: COLLEGES[0],
     customCollege: '',
@@ -255,15 +347,10 @@ export default function App() {
         el.focus();
         el.classList.add('shake');
       }
-      return; // STOP — do not open WhatsApp
+      return; 
     }
 
-    // ── STEP A: Generate Registration ID ──
-    const registrationId = `SS2027-${Math.floor(
-      10000000 + Math.random() * 90000000
-    )}`;
-
-    // ── STEP B: Check for duplicate Transaction ID ──
+    // Check for duplicate Transaction ID in Supabase
     const { data: existingTxn } = await supabase
       .from('register')
       .select('id')
@@ -273,14 +360,33 @@ export default function App() {
     if (existingTxn) {
       setErrors(prev => ({
         ...prev,
-        transactionId: 'This Transaction ID has already been used. Please check your payment details. If you believe this is a mistake, contact the coordinator at 8309030400.'
+        transactionId: 'This Transaction ID has already been used. Please check your payment details.'
       }));
       return;
     }
 
-    // SAVE TO SUPABASE
     try {
-      const { error } = await supabase
+      // ── STEP A: Call Backend API ──
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          college: collegeName,
+          participant_email: formData.email
+        })
+      });
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      const registrationId = result.registration_id;
+
+      // ── STEP B: Save to Supabase (Frontend) ──
+      const { error: supabaseError } = await supabase
         .from('register')
         .insert([{
           college: collegeName,
@@ -296,19 +402,11 @@ export default function App() {
           preferred_domain: formData.preferredDomain,
         }]);
 
-      if (error) {
-        console.error('Supabase error:', error);
-      } else {
-        console.log('Saved successfully!');
-        fetchCount(); // refresh counter
+      if (supabaseError) console.error('Supabase error:', supabaseError);
+      fetchCount();
 
-      }
-    } catch (err) {
-      console.error('Failed to save to Supabase:', err);
-    }
-
-    // ALL VALID — build WhatsApp message
-    const message =
+      // ALL VALID — build WhatsApp message
+      const message =
 `*Registration ID: ${registrationId}*
 ━━━━━━━━━━━━━━━━━━━━━━━━
 Hello! I have registered for *SPEAKSPHERE* event at NNRG Tech Fest 2027.
@@ -332,10 +430,14 @@ Please verify my payment and confirm
 my registration for SPEAKSPHERE.
 Thank you! 🙏`;
 
-    window.open(
-      `https://wa.me/918309030400?text=${encodeURIComponent(message)}`,
-      '_blank'
-    );
+      window.open(
+        `https://wa.me/918309030400?text=${encodeURIComponent(message)}`,
+        '_blank'
+      );
+    } catch (err: any) {
+      console.error('Registration failed:', err);
+      alert('Registration failed: ' + err.message);
+    }
   };
 
   return (
@@ -1215,5 +1317,14 @@ Thank you! 🙏`;
       </footer>
       <ChatBot />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/review/:token" element={<ReviewPage />} />
+    </Routes>
   );
 }
