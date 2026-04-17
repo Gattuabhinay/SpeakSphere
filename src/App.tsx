@@ -541,12 +541,17 @@ Thank you! 🙏`;
             visitor@nnrg:~$ ./launch speaksphere --year=2027
           </p>
 
-          <div className="mb-8 px-6 py-2 border border-[#7C3AED] rounded-full bg-[#7C3AED]/10 flex items-center gap-3">
+          <a 
+            href="https://nnrg-lander-ai-ml.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-8 px-6 py-2 border border-[#7C3AED] rounded-full bg-[#7C3AED]/10 flex items-center gap-3 hover:bg-[#7C3AED]/20 transition-all active:scale-95"
+          >
             <span className="text-[#7C3AED]">⚡</span>
             <span className="text-[#7C3AED] text-[10px] font-bold tracking-[2px] uppercase">
               NNRG TECH FEST 2027 | AI & ML DEPARTMENT
             </span>
-          </div>
+          </a>
 
           <div className="mb-4">
             <h1 className="text-[56px] md:text-[100px] font-[900] leading-none tracking-[-3px] flex flex-wrap justify-center gap-x-4">
@@ -628,6 +633,9 @@ Thank you! 🙏`;
           <div className="mb-12">
             <p className="text-white/80 text-[18px] font-bold">
               Organizing by <span className="text-[#3B82F6]">AI & ML Department</span>
+            </p>
+            <p className="text-[#7C3AED]/70 text-[12px] font-mono tracking-[4px] mt-4 uppercase animate-pulse">
+              co-powered by the NNRG TECH FEST WEB CREATOR "ABHINAY"
             </p>
           </div>
 
@@ -1329,17 +1337,38 @@ Thank you! 🙏`;
           </div>
 
           {/* Bottom Bar */}
-          <div className="border-t border-white/0.07 mt-20 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-white/20 text-[10px] text-center md:text-left">
-            <p>Developed by the CSM Department</p>
-            <p>© 2027 NNRG Fest. All rights reserved.</p>
-            <a 
-              href="https://wa.me/918309030400" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-[#7C3AED] hover:underline"
-            >
-              Designed by GATTU ABHINAY ↗
-            </a>
+          <div className="border-t border-white/10 mt-20 pt-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-[11px] text-white/40">
+            <div className="space-y-2">
+              <p className="text-white/20 font-bold tracking-widest mb-2">WEB CREATOR</p>
+              <p className="text-[#7C3AED] font-bold">ABHINAY CAM-A</p>
+              <p>3rd Year | 247Z1A6660</p>
+              <p className="text-white/20 mt-4 font-bold tracking-widest uppercase mb-2">HOD AI & ML</p>
+              <p className="text-white font-bold">G. SARAVAN KUMAR</p>
+            </div>
+            
+            <div className="space-y-2 text-center">
+              <p className="text-white/20 font-bold tracking-widest mb-2">PAYMENT & REGISTRATION</p>
+              <p>Registration Fee: <span className="text-white font-bold">₹100</span></p>
+              <p>UPI ID: <span className="text-[#7C3AED]">8309030400-id8e@axl</span></p>
+              <p className="mt-4">For any registration queries, consult:</p>
+              <p className="text-white font-bold">HOD G. SARAVAN KUMAR</p>
+            </div>
+
+            <div className="space-y-2 text-right">
+              <p className="text-white/20 font-bold tracking-widest mb-2">COORDINATION</p>
+              <p>Main Coordinator: <span className="text-white font-bold">GATTU ABHINAY</span></p>
+              <p>© 2027 NNRG Fest. All rights reserved.</p>
+              <div className="mt-4">
+                <a 
+                  href="https://nnrg-lander-ai-ml.vercel.app/#events" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-[#7C3AED] hover:underline font-bold"
+                >
+                  More Events ↗
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

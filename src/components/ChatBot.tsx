@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { MessageSquare, Send, X, MinusCircle, User, Bot, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import Markdown from 'react-markdown';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -47,7 +48,35 @@ export default function ChatBot() {
           { role: 'user', parts: [{ text: userMessage }] }
         ],
         config: {
-          systemInstruction: "You are the official SpeakSphere 2027 Event Assistant. Your goal is to help participants with registration, event details (Feb 26, 2027, Venue T03, Fee ₹100), rounds (Speak Off, Group Decision, Face Off), and any other questions about the NNRG Tech Fest. Be professional, encouraging, and helpful. Keep responses concise and focused on the event.",
+          systemInstruction: `You are the official SpeakSphere 2027 Event Assistant. 
+          
+          Event Details:
+          - Event: SpeakSphere 2027 (Public speaking & presentation competition)
+          - Date: Feb 26, 2027
+          - Time: 9:30 AM (Morning Session)
+          - Venue: Room T03
+          - Fee: ₹100 per person
+          - Competition Type: Individual Participation
+          - Department: AI & ML Department, NNRG Tech Fest 2027
+          - HOD/Registration Consult: G. SARAVAN KUMAR
+          - Web Creator: ABHINAY CAM-A (3rd Year, ID: 247Z1A6660)
+          - Main Coordinator: GATTU ABHINAY (Contact for event flow & queries)
+          
+          Event Count & Other Events:
+          - Total Events in Tech Fest: 6
+          - Current Event: SpeakSphere
+          - Other 5 Events:
+            1) Idea2App
+            2) TechTitan
+            3) Quick Puzzle
+            4) Paper Presentation
+            5) Codemania
+          - More Details: Participants can visit [NNRG Tech Fest Lander](https://nnrg-lander-ai-ml.vercel.app/#events) for other events.
+          
+          Guidelines:
+          - Be professional, encouraging, and helpful.
+          - If someone asks how many events there are, mention there are 6 total, name the 5 others, and provide the [clickable link](https://nnrg-lander-ai-ml.vercel.app/#events).
+          - Keep responses concise and focused.`,
         }
       });
 
@@ -118,7 +147,22 @@ export default function ChatBot() {
                         ? 'bg-[#7C3AED] text-white rounded-tr-none' 
                         : 'bg-white/5 text-white/90 border border-white/10 rounded-tl-none'
                     }`}>
-                      {msg.text}
+                      <div className="markdown-body">
+                        <Markdown
+                          components={{
+                            a: ({ node, ...props }) => (
+                              <a 
+                                {...props} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="text-blue-400 hover:underline font-bold"
+                              />
+                            )
+                          }}
+                        >
+                          {msg.text}
+                        </Markdown>
+                      </div>
                     </div>
                   </div>
                 </div>
