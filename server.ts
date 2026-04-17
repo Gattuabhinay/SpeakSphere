@@ -18,25 +18,24 @@ async function startServer() {
   const EMAILJS_SERVICE_ID = 'service_3kbt9ft';
   const EMAILJS_TEMPLATE_ID = 'template_kqhteg9';
   const EMAILJS_PUBLIC_KEY = 'CtZBtL2OiswTAomUD';
+  const EMAILJS_PRIVATE_KEY = 'n1OoVsbZdZ7ujIz7sy8OG';
   const COORDINATOR_EMAIL = 'gattu.abhinay33@gmail.com';
   
   const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzJSQgmDpZ8VVgPu8R-n4HiszkMqvhsFJj7Et7ARbWcmRnXsWYDCIs8eMkBQwXFSRNW/exec';
-  const SUPABASE_URL = 'https://dklzqwcgboolzisqngei.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrbHpxd2NnYm9vbHppc3FuZ2VpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNDcxNzEsImV4cCI6MjA4MzcyMzE3MX0.TEqgRDBCHGJJJsOoLdUfXlKXmnR6m_J5woumAjOtw9E';
 
   // API Routes
   app.post('/api/register', async (req, res) => {
     try {
       const {
-        full_name,
-        roll_number,
+        fullName,
+        rollNumber,
         department,
         year,
         mobile,
-        participant_email,
+        email,
         college,
-        preferred_domain,
-        transaction_id
+        preferredDomain,
+        transactionId
       } = req.body;
 
       const registration_id = `SS27-${nanoid(6).toUpperCase()}`;
@@ -45,15 +44,15 @@ async function startServer() {
       // Save to Google Sheets
       const sheetData = {
         registration_id,
-        full_name,
-        roll_number,
+        full_name: fullName,
+        roll_number: rollNumber,
         department,
         year,
         mobile,
-        participant_email,
+        participant_email: email,
         college,
-        preferred_domain,
-        transaction_id,
+        preferred_domain: preferredDomain,
+        transaction_id: transactionId,
         token,
         status: 'pending',
         timestamp: new Date().toISOString()
@@ -70,50 +69,63 @@ async function startServer() {
 
       // Send email
       const templateParams = {
+        to_email: COORDINATOR_EMAIL,
         registration_id,
-        full_name,
-        roll_number,
+        full_name: fullName,
+        roll_number: rollNumber,
         department,
         year,
         mobile,
-        participant_email,
+        participant_email: email,
         college,
-        transaction_id,
-        accept_url: `https://${req.get('host')}/review/${token}?action=accept`,
-        reject_url: `https://${req.get('host')}/review/${token}?action=reject`,
+        transaction_id: transactionId,
+        accept_url: `https://ais-dev-bpssvq3hwwuyvqziptv7nj-230014416953.asia-east1.run.app/review/${token}?action=accept`,
+        reject_url: `https://ais-dev-bpssvq3hwwuyvqziptv7nj-230014416953.asia-east1.run.app/review/${token}?action=reject`,
         sheet_url: "https://docs.google.com/spreadsheets/d/1jDZTiBfUbAXzKGP698zOpfn9fB-trgowCb4apFxOOIA"
       };
 
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        templateParams,
-        { publicKey: EMAILJS_PUBLIC_KEY }
-      );
+      try {
+        await emailjs.send(
+          EMAILJS_SERVICE_ID,
+          EMAILJS_TEMPLATE_ID,
+          templateParams,
+          { 
+            publicKey: EMAILJS_PUBLIC_KEY,
+            privateKey: EMAILJS_PRIVATE_KEY
+          }
+        );
+      } catch (emailError: any) {
+        console.error('EmailJS Error Details:', {
+          status: emailError.status,
+          text: emailError.text,
+          message: emailError.message
+        });
+        // We throw a more descriptive error or just the original one
+        throw emailError;
+      }
 
       res.json({ success: true, registration_id, token });
     } catch (error: any) {
       console.error('Registration API error:', error);
-      res.status(500).json({ success: false, error: error.message });
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || error.text || 'Unknown Error',
+        details: error 
+      });
     }
   });
 
   app.post('/api/review', async (req, res) => {
     const { token, action } = req.body;
     try {
-      // In a real app, we would search Supabase by token.
-      // Since the user is using Google Sheets for the main logic, 
-      // we'll just simulate success for now or update a 'registrations' state.
-      // To strictly follow the instruction "Automatically trigger accept on page load", 
-      // the frontend review page will call this.
-      
-      console.log(`Action ${action} triggered for token ${token}`);
-      
-      // Update Google Sheet with the decision if possible
-      // (This requires the Apps Script to handle 'ACTION' type requests)
-      
-      res.json({ success: true, message: `Registration ${action}ed successfully` });
+      console.log(`Review action ${action} for token ${token}`);
+      // Supabase removed for now. Actions are logged server-side.
+      res.json({ 
+        success: true, 
+        message: `Registration ${action}ed (Logged only - Database is currently disabled)` 
+      });
     } catch (error: any) {
+      console.error('Review API error:', error);
       res.status(500).json({ success: false, error: error.message });
     }
   });

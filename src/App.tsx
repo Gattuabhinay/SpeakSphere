@@ -8,7 +8,6 @@ NNRG TechFest 2027 - SPEAKSPHERE
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import { Routes, Route, useParams, useSearchParams, Link } from 'react-router-dom';
 import { 
   Calendar, 
@@ -80,11 +79,6 @@ const DOMAINS = [
 const ACCENT_HEX = "#7C3AED";
 const ACCENT_RGB = "124, 58, 237";
 
-const supabase = createClient(
-  'https://dklzqwcgboolzisqngei.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrbHpxd2NnYm9vbHppc3FuZ2VpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNDcxNzEsImV4cCI6MjA4MzcyMzE3MX0.TEqgRDBCHGJJJsOoLdUfXlKXmnR6m_J5woumAjOtw9E'
-);
-
 function ReviewPage() {
   const { token } = useParams();
   const [searchParams] = useSearchParams();
@@ -92,12 +86,16 @@ function ReviewPage() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'idle'>('idle');
   const [message, setMessage] = useState('');
   const [disabled, setDisabled] = useState(false);
+  const [participant, setParticipant] = useState<any>(null);
 
   useEffect(() => {
-    if (action && (action === 'accept' || action === 'reject')) {
-      handleAction(action);
-    }
-  }, [action]);
+    fetchParticipant();
+  }, [token]);
+
+  const fetchParticipant = async () => {
+    // Supabase removed for now. Participant details cannot be fetched currently.
+    setStatus('idle');
+  };
 
   const handleAction = async (decision: string) => {
     setStatus('loading');
@@ -122,15 +120,81 @@ function ReviewPage() {
     }
   };
 
+  const notifyParticipant = () => {
+    if (!participant) return;
+    const groupLink = 'https://chat.whatsapp.com/BlDY7ksIseOIF4oSUFfw90';
+    const message = `Congratulations ${participant.name}! Your registration for SpeakSphere 2027 has been ACCEPTED. 🎊\n\nPlease join the official WhatsApp group for further updates:\n${groupLink}\n\nSee you at the event!`;
+    window.open(`https://wa.me/91${participant.mobile_no}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const [manualToken, setManualToken] = useState('');
+
+  const handleManualSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (manualToken.trim()) {
+      window.location.href = `/review/${manualToken.trim()}`;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0D1117] flex items-center justify-center p-4">
       <div className="bg-[#161B22] border border-white/10 rounded-2xl p-8 max-w-md w-full text-center">
-        <h2 className="text-2xl font-black text-white mb-6 uppercase tracking-wider">Registration Review</h2>
+        <h2 className="text-2xl font-black text-white mb-6 uppercase tracking-wider italic font-serif">Review Command Center</h2>
         
+        {participant ? (
+          <div className="mb-6 p-4 bg-white/5 rounded-xl border border-white/5 text-left border-l-4 border-l-[#7C3AED]">
+            <p className="text-[#7C3AED] text-[10px] font-bold uppercase mb-1 tracking-widest">PARTICIPANT IDENTIFIED</p>
+            <p className="text-white font-bold text-lg">{participant.name}</p>
+            <p className="text-white/40 text-xs font-mono">{participant.roll_number} • {participant.department} • {participant.year}</p>
+            <div className="mt-2 text-[10px] font-mono text-white/30 uppercase">TXN: {participant.transaction_id}</div>
+          </div>
+        ) : !token ? (
+          <div className="mb-8 p-6 bg-white/5 rounded-xl border border-white/10">
+            <ShieldCheck className="w-12 h-12 text-[#7C3AED] mx-auto mb-4" />
+            <p className="text-white font-bold mb-4">Awaiting Review Token</p>
+            <form onSubmit={handleManualSubmit} className="space-y-3">
+              <input 
+                type="text"
+                placeholder="Paste Token from Email"
+                value={manualToken}
+                onChange={(e) => setManualToken(e.target.value)}
+                className="w-full bg-[#0D1117] border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:border-[#7C3AED] outline-none"
+              />
+              <button className="w-full bg-[#7C3AED] text-white py-2 rounded-lg font-bold text-sm hover:bg-[#6D28D9] transition-colors">
+                Identify Registration
+              </button>
+            </form>
+          </div>
+        ) : status === 'idle' && !participant ? (
+          <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-xl mb-6 text-left">
+            <AlertTriangle className="w-8 h-8 text-red-500 mb-3" />
+            <p className="text-red-500 font-bold mb-2 uppercase text-xs">Token Not Found</p>
+            <p className="text-white/60 text-sm leading-relaxed">
+              We couldn't find a record for this token. This happens if:
+            </p>
+            <ul className="text-white/60 text-xs mt-2 space-y-1 list-disc list-inside">
+              <li>The user registered before the token system was added.</li>
+              <li>The <code>review_token</code> column is missing in Supabase.</li>
+            </ul>
+            <div className="mt-4 p-2 bg-black/40 rounded font-mono text-[10px] text-yellow-500/70 border border-yellow-500/20">
+              SQL Reminder: ALTER TABLE register ADD COLUMN IF NOT EXISTS review_token text;
+            </div>
+          </div>
+        ) : null}
+
         {status === 'success' ? (
           <div className="bg-green-500/10 border border-green-500/50 p-4 rounded-xl mb-6">
             <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
-            <p className="text-green-500 font-bold text-lg">{message}</p>
+            <p className="text-green-500 font-bold text-lg mb-2">{message}</p>
+            {message.includes('Accepted') && (
+              <button 
+                onClick={notifyParticipant}
+                className="mt-4 w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 shadow-lg transition-all"
+              >
+                Notify Partcipant & Group Link
+                <MessageSquare className="w-4 h-4" />
+              </button>
+            )}
           </div>
         ) : status === 'error' ? (
           <div className="bg-red-500/10 border border-red-500/50 p-4 rounded-xl mb-6">
@@ -217,14 +281,8 @@ function Home() {
   };
 
   const fetchCount = async () => {
-    try {
-      const { count } = await supabase
-        .from('register')
-        .select('*', { count: 'exact', head: true });
-      setRegistrationCount(count ?? 0);
-    } catch (err) {
-      console.error('Error fetching count:', err);
-    }
+    // Database removed for now.
+    setRegistrationCount(0);
   };
 
   useEffect(() => {
@@ -350,21 +408,6 @@ function Home() {
       return; 
     }
 
-    // Check for duplicate Transaction ID in Supabase
-    const { data: existingTxn } = await supabase
-      .from('register')
-      .select('id')
-      .eq('transaction_id', formData.transactionId)
-      .maybeSingle();
-
-    if (existingTxn) {
-      setErrors(prev => ({
-        ...prev,
-        transactionId: 'This Transaction ID has already been used. Please check your payment details.'
-      }));
-      return;
-    }
-
     try {
       // ── STEP A: Call Backend API ──
       const response = await fetch('/api/register', {
@@ -384,26 +427,10 @@ function Home() {
       }
 
       const registrationId = result.registration_id;
+      const token = result.token;
 
-      // ── STEP B: Save to Supabase (Frontend) ──
-      const { error: supabaseError } = await supabase
-        .from('register')
-        .insert([{
-          college: collegeName,
-          name: formData.fullName,
-          roll_number: formData.rollNumber,
-          department: formData.department,
-          year: formData.year,
-          mobile_no: formData.mobile,
-          e_mail: formData.email || null,
-          transaction_id: formData.transactionId,
-          registration_id: registrationId,
-          status: 'pending',
-          preferred_domain: formData.preferredDomain,
-        }]);
-
-      if (supabaseError) console.error('Supabase error:', supabaseError);
-      fetchCount();
+      // Database removed for now. 
+      // fetchCount();
 
       // ALL VALID — build WhatsApp message
       const message =
@@ -436,7 +463,8 @@ Thank you! 🙏`;
       );
     } catch (err: any) {
       console.error('Registration failed:', err);
-      alert('Registration failed: ' + err.message);
+      const errorMsg = err.message || 'An unknown error occurred';
+      alert('Registration failed: ' + errorMsg);
     }
   };
 
